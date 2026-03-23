@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amrutha Care – Homeopathy CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-light: #6a9e78;
+  --sage-dark: #2f5238;
+  --cream: #faf7f2;
+  --warm-white: #f5f0e8;
+  --amber: #c8883a;
+  --amber-light: #e8a85a;
+  --earth: #8b6f47;
+  --text-primary: #1a2e22;
+  --text-secondary: #4a5e52;
+  --text-muted: #7a9080;
+  --border: #d4e4d8;
+  --border-light: #e8f0ea;
+  --card-bg: #ffffff;
+  --sidebar-w: 240px;
+  --header-h: 64px;
+  --radius: 12px;
+  --shadow: 0 2px 16px rgba(30,70,40,0.08);
+  --shadow-lg: 0 8px 32px rgba(30,70,40,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text-primary); min-height: 100vh; }
+
+/* ── LOGIN ── */
+#login-screen {
+  position: fixed; inset: 0; background: linear-gradient(135deg, #1a3022 0%, #2f5238 40%, #4a7c59 100%);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+  transition: opacity .5s, transform .5s;
+}
+#login-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.04); }
+.login-card {
+  background: rgba(255,255,255,0.06); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 24px;
+  padding: 48px 48px 44px; width: 400px; text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+}
+.login-logo { font-family: 'Playfair Display', serif; font-size: 28px; color: #fff; font-weight: 700; margin-bottom: 4px; }
+.login-sub { color: rgba(255,255,255,0.55); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 36px; }
+.login-card label { display: block; text-align: left; color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 500; letter-spacing:.05em; text-transform:uppercase; margin-bottom: 6px; }
+.login-card select, .login-card input {
+  width: 100%; padding: 12px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+  color: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px;
+  outline: none; margin-bottom: 20px; transition: border-color .2s;
+}
+.login-card select option { background: #2f5238; color: #fff; }
+.login-card input::placeholder { color: rgba(255,255,255,0.4); }
+.login-card select:focus, .login-card input:focus { border-color: rgba(255,255,255,0.5); }
+.login-btn {
+  width: 100%; padding: 14px; border-radius: 10px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--amber), var(--amber-light));
+  color: #fff; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+  letter-spacing: .02em; transition: transform .15s, box-shadow .15s;
+}
+.login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,136,58,.4); }
+.login-leaf { font-size: 42px; margin-bottom: 16px; display: block; filter: drop-shadow(0 4px 12px rgba(0,0,0,.3)); }
+
+/* ── LAYOUT ── */
+#app { display: flex; min-height: 100vh; }
+#sidebar {
+  width: var(--sidebar-w); background: var(--sage-dark);
+  position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+  display: flex; flex-direction: column; transition: transform .3s;
+}
+.sidebar-brand {
+  padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.brand-name { font-family: 'Playfair Display', serif; font-size: 20px; color: #fff; font-weight: 700; line-height: 1.2; }
+.brand-tag { font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: .07em; text-transform: uppercase; }
+.sidebar-role-badge {
+  margin: 12px 16px; padding: 6px 12px; background: rgba(255,255,255,0.1);
+  border-radius: 20px; font-size: 11px; color: rgba(255,255,255,0.7); text-align: center;
+  font-weight: 500; letter-spacing: .05em; text-transform: uppercase;
+}
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+.nav-section-label { padding: 12px 20px 4px; font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 20px;
+  cursor: pointer; color: rgba(255,255,255,0.65); font-size: 14px; font-weight: 400;
+  transition: background .15s, color .15s; border-radius: 0;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: rgba(255,255,255,0.1); color: #fff; border-left-color: var(--amber); font-weight: 500; }
+.nav-item .nav-icon { width: 18px; text-align: center; font-size: 16px; }
+.sidebar-footer {
+  padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--amber); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.user-info .user-name { font-size: 13px; color: #fff; font-weight: 500; }
+.user-info .user-role { font-size: 11px; color: rgba(255,255,255,0.45); }
+.logout-btn { margin-left: auto; font-size: 18px; color: rgba(255,255,255,0.4); transition: color .2s; }
+.logout-btn:hover { color: rgba(255,255,255,0.8); }
+
+#main {
+  margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+}
+#header {
+  height: var(--header-h); background: var(--card-bg); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 50;
+}
+.header-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--text-primary); flex: 1; }
+.header-subtitle { font-size: 13px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-weight: 400; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+.btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; transition: all .15s; }
+.btn-primary { background: var(--sage); color: #fff; }
+.btn-primary:hover { background: var(--sage-dark); }
+.btn-secondary { background: var(--warm-white); color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border-light); }
+.btn-amber { background: var(--amber); color: #fff; }
+.btn-amber:hover { background: #b07530; }
+.btn-danger { background: #fff0f0; color: #c04040; border: 1px solid #f0c0c0; }
+.btn-danger:hover { background: #ffe0e0; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+#content { flex: 1; padding: 28px; overflow-y: auto; }
+
+/* ── CARDS ── */
+.card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; box-shadow: var(--shadow); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--text-primary); }
+.card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── STATS GRID ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border);
+  padding: 20px; position: relative; overflow: hidden;
+}
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.stat-card.green::before { background: linear-gradient(90deg, var(--sage), var(--sage-light)); }
+.stat-card.amber::before { background: linear-gradient(90deg, var(--amber), var(--amber-light)); }
+.stat-card.blue::before { background: linear-gradient(90deg, #4a7a9b, #6da0c0); }
+.stat-card.purple::before { background: linear-gradient(90deg, #7a6a9b, #9a8abc); }
+.stat-value { font-size: 30px; font-weight: 700; color: var(--text-primary); font-family: 'DM Mono', monospace; line-height: 1; margin-bottom: 4px; }
+.stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.stat-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 32px; opacity: .12; }
+.stat-trend { font-size: 11px; margin-top: 6px; }
+.stat-trend.up { color: var(--sage); }
+.stat-trend.down { color: #c04040; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em;
+  border-bottom: 1px solid var(--border); background: var(--warm-white);
+}
+tbody tr { border-bottom: 1px solid var(--border-light); transition: background .12s; }
+tbody tr:hover { background: var(--warm-white); }
+tbody td { padding: 12px 14px; font-size: 13.5px; color: var(--text-primary); }
+tbody tr:last-child { border-bottom: none; }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.badge-green { background: #e8f5ec; color: #2a6b3a; }
+.badge-amber { background: #fef3e2; color: #8b5a00; }
+.badge-red { background: #fdeaea; color: #8b2020; }
+.badge-blue { background: #e8f0fb; color: #2050a0; }
+.badge-gray { background: #f0f0f0; color: #606060; }
+.badge-purple { background: #f0ebfb; color: #5030a0; }
+
+/* ── GRID LAYOUTS ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.main-side { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+
+/* ── FORM ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: span 2; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+.form-control {
+  padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border);
+  font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text-primary);
+  outline: none; transition: border-color .2s; background: #fff;
+}
+.form-control:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(74,124,89,.1); }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+/* ── AVATAR LIST ── */
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.av-green { background: var(--sage); }
+.av-amber { background: var(--amber); }
+.av-blue { background: #4a7a9b; }
+.av-purple { background: #7a6a9b; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(3px);
+  z-index: 500; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: #fff; border-radius: 16px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+  padding: 28px; box-shadow: 0 24px 80px rgba(0,0,0,.2); transform: translateY(16px);
+  transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; }
+.modal-close { font-size: 22px; cursor: pointer; color: var(--text-muted); transition: color .15s; background: none; border: none; }
+.modal-close:hover { color: var(--text-primary); }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tab-btn {
+  padding: 10px 20px; border: none; background: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text-muted);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s;
+  font-weight: 400;
+}
+.tab-btn.active { color: var(--sage); border-bottom-color: var(--sage); font-weight: 600; }
+.tab-btn:hover:not(.active) { color: var(--text-primary); }
+
+/* ── SEARCH ── */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--warm-white); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 14px;
+}
+.search-bar input { background: none; border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text-primary); width: 220px; }
+.search-bar input::placeholder { color: var(--text-muted); }
+
+/* ── TIMELINE ── */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item { display: flex; gap: 14px; padding-bottom: 20px; position: relative; }
+.timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 17px; top: 34px; bottom: 0; width: 1px; background: var(--border); }
+.timeline-dot { width: 34px; height: 34px; border-radius: 50%; background: var(--warm-white); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; z-index: 1; }
+.timeline-dot.green { background: #e8f5ec; border-color: var(--sage); }
+.timeline-dot.amber { background: #fef3e2; border-color: var(--amber); }
+.timeline-body { flex: 1; padding-top: 4px; }
+.timeline-title { font-size: 13.5px; font-weight: 500; color: var(--text-primary); }
+.timeline-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.timeline-note { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; background: var(--warm-white); padding: 8px 10px; border-radius: 8px; border-left: 3px solid var(--border); }
+
+/* ── MINI CHART ── */
+.mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 50px; }
+.mini-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--sage); opacity: .7; transition: opacity .2s; min-height: 4px; }
+.mini-bar:hover { opacity: 1; }
+
+/* ── PAGE VISIBILITY ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── NOTICE ── */
+.notice {
+  padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.notice-info { background: #e8f0fb; color: #2050a0; border-left: 3px solid #4070d0; }
+.notice-warn { background: #fef3e2; color: #8b5a00; border-left: 3px solid var(--amber); }
+.notice-success { background: #e8f5ec; color: #2a6b3a; border-left: 3px solid var(--sage); }
+
+/* ── MISC ── */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.text-muted { color: var(--text-muted); font-size: 12.5px; }
+.flex-row { display: flex; align-items: center; gap: 10px; }
+.mt-16 { margin-top: 16px; }
+.mb-16 { margin-bottom: 16px; }
+.progress-bar { height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--sage-light)); border-radius: 4px; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: var(--border-light); color: var(--text-secondary); margin: 2px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@media(max-width:900px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .two-col, .three-col, .main-side { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <span class="login-leaf">🌿</span>
+    <div class="login-logo">Amrutha Care</div>
+    <div class="login-sub">Homeopathy Clinic CRM</div>
+    <label>Sign in as</label>
+    <select id="role-select">
+      <option value="admin">Admin / Owner</option>
+      <option value="doctor">Doctor / Homeopath</option>
+      <option value="receptionist">Receptionist</option>
+      <option value="pharmacist">Pharmacist</option>
+      <option value="accountant">Accountant</option>
+    </select>
+    <label>Password</label>
+    <input type="password" id="login-pass" placeholder="Enter password" value="1234">
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app" style="display:none">
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-brand">
+    <div style="font-size:20px;margin-bottom:4px">🌿</div>
+    <div class="brand-name">Amrutha Care</div>
+    <div class="brand-tag">Homeopathy Clinic</div>
+  </div>
+  <div class="sidebar-role-badge" id="role-badge">Admin</div>
+  <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  <div class="sidebar-footer" onclick="doLogout()">
+    <div class="user-avatar" id="user-avatar">A</div>
+    <div class="user-info">
+      <div class="user-name" id="user-name-display">Admin</div>
+      <div class="user-role" id="user-role-display">Administrator</div>
+    </div>
+    <div class="logout-btn" title="Logout">↩</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+  <header id="header">
+    <div>
+      <div class="header-title" id="header-title">Dashboard</div>
+      <div class="header-subtitle" id="header-subtitle">Overview of clinic activity</div>
+    </div>
+    <div class="header-actions" id="header-actions"></div>
+  </header>
+  <main id="content">
+    <!-- pages injected here -->
+  </main>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA LAYER
+// ══════════════════════════════════════════
+const DATA = {
+  patients: [
+    { id:'P001', name:'Meera Rao', age:34, gender:'Female', phone:'9876543210', email:'meera@email.com', address:'Banjara Hills, Hyderabad', bloodGroup:'B+', condition:'Chronic Migraine', doctor:'Dr. Lakshmi', lastVisit:'2025-03-10', nextAppt:'2025-03-24', status:'Active', balance:0, totalSpent:4800 },
+    { id:'P002', name:'Ravi Kumar', age:52, gender:'Male', phone:'9123456780', email:'ravi@email.com', address:'Jubilee Hills, Hyderabad', bloodGroup:'O+', condition:'Diabetes (Type 2)', doctor:'Dr. Suresh', lastVisit:'2025-03-12', nextAppt:'2025-03-26', status:'Active', balance:500, totalSpent:12000 },
+    { id:'P003', name:'Sunita Sharma', age:28, gender:'Female', phone:'9000112233', email:'sunita@email.com', address:'Kukatpally, Hyderabad', bloodGroup:'A+', condition:'Anxiety & Stress', doctor:'Dr. Lakshmi', lastVisit:'2025-03-05', nextAppt:'2025-03-28', status:'Active', balance:0, totalSpent:3200 },
+    { id:'P004', name:'Arjun Mehta', age:45, gender:'Male', phone:'9876001234', email:'arjun@email.com', address:'Secunderabad', bloodGroup:'AB+', condition:'Skin Eczema', doctor:'Dr. Priya', lastVisit:'2025-02-20', nextAppt:'2025-04-01', status:'Inactive', balance:200, totalSpent:7600 },
+    { id:'P005', name:'Kavya Reddy', age:19, gender:'Female', phone:'9988776655', email:'kavya@email.com', address:'Ameerpet, Hyderabad', bloodGroup:'O-', condition:'Allergic Rhinitis', doctor:'Dr. Suresh', lastVisit:'2025-03-14', nextAppt:'2025-03-30', status:'Active', balance:0, totalSpent:1800 },
+    { id:'P006', name:'Prakash Iyer', age:60, gender:'Male', phone:'9001234567', email:'prakash@email.com', address:'Madhapur, Hyderabad', bloodGroup:'A-', condition:'Arthritis', doctor:'Dr. Priya', lastVisit:'2025-03-08', nextAppt:'2025-03-25', status:'Active', balance:0, totalSpent:9200 },
+  ],
+  appointments: [
+    { id:'A001', patient:'Meera Rao', patientId:'P001', doctor:'Dr. Lakshmi', date:'2025-03-23', time:'10:00 AM', type:'Follow-up', status:'Confirmed', notes:'Check migraine progress' },
+    { id:'A002', patient:'Ravi Kumar', patientId:'P002', doctor:'Dr. Suresh', date:'2025-03-23', time:'11:30 AM', type:'Consultation', status:'Waiting', notes:'Blood sugar report review' },
+    { id:'A003', patient:'Sunita Sharma', patientId:'P003', doctor:'Dr. Lakshmi', date:'2025-03-23', time:'02:00 PM', type:'Follow-up', status:'Confirmed', notes:'Anxiety treatment review' },
+    { id:'A004', patient:'Kavya Reddy', patientId:'P005', doctor:'Dr. Suresh', date:'2025-03-24', time:'09:30 AM', type:'New Patient', status:'Confirmed', notes:'Initial consultation' },
+    { id:'A005', patient:'Prakash Iyer', patientId:'P006', doctor:'Dr. Priya', date:'2025-03-24', time:'11:00 AM', type:'Follow-up', status:'Pending', notes:'Joint pain assessment' },
+    { id:'A006', patient:'Arjun Mehta', patientId:'P004', doctor:'Dr. Priya', date:'2025-03-25', time:'03:00 PM', type:'Review', status:'Pending', notes:'Skin condition review' },
+  ],
+  prescriptions: [
+    { id:'RX001', patientId:'P001', patient:'Meera Rao', doctor:'Dr. Lakshmi', date:'2025-03-10', medicines:['Belladonna 30C', 'Nux Vomica 200C'], dosage:'3 pellets twice daily', notes:'Avoid coffee', status:'Active', dispensed:false },
+    { id:'RX002', patientId:'P002', patient:'Ravi Kumar', doctor:'Dr. Suresh', date:'2025-03-12', medicines:['Syzygium Jambolanum Q', 'Uranium Nitricum 30C'], dosage:'10 drops in water, twice daily', notes:'Diet control', status:'Active', dispensed:true },
+    { id:'RX003', patientId:'P003', patient:'Sunita Sharma', doctor:'Dr. Lakshmi', date:'2025-03-05', medicines:['Ignatia 200C', 'Kali Phos 6X'], dosage:'4 pellets three times daily', notes:'Yoga recommended', status:'Active', dispensed:true },
+    { id:'RX004', patientId:'P006', patient:'Prakash Iyer', doctor:'Dr. Priya', date:'2025-03-08', medicines:['Rhus Tox 200C', 'Bryonia Alba 30C'], dosage:'5 pellets twice daily', notes:'Warm compress advised', status:'Active', dispensed:false },
+  ],
+  inventory: [
+    { id:'INV001', name:'Belladonna 30C', category:'Remedy', stock:148, unit:'10ml vial', reorder:20, price:45, supplier:'SBL Pvt Ltd', expiry:'2026-08' },
+    { id:'INV002', name:'Nux Vomica 200C', category:'Remedy', stock:92, unit:'10ml vial', reorder:15, price:55, supplier:'Boiron', expiry:'2026-12' },
+    { id:'INV003', name:'Syzygium Jambolanum Q', category:'Mother Tincture', stock:18, unit:'30ml bottle', reorder:10, price:120, supplier:'Reckeweg', expiry:'2025-10' },
+    { id:'INV004', name:'Ignatia 200C', category:'Remedy', stock:65, unit:'10ml vial', reorder:20, price:48, supplier:'SBL Pvt Ltd', expiry:'2026-06' },
+    { id:'INV005', name:'Rhus Tox 200C', category:'Remedy', stock:8, unit:'10ml vial', reorder:20, price:50, supplier:'Boiron', expiry:'2026-03' },
+    { id:'INV006', name:'Kali Phos 6X', category:'Biochemic', stock:120, unit:'25g', reorder:30, price:85, supplier:'SBL Pvt Ltd', expiry:'2026-09' },
+    { id:'INV007', name:'Arnica Montana 30C', category:'Remedy', stock:78, unit:'10ml vial', reorder:25, price:45, supplier:'Reckeweg', expiry:'2026-11' },
+    { id:'INV008', name:'Bryonia Alba 30C', category:'Remedy', stock:3, unit:'10ml vial', reorder:15, price:48, supplier:'Boiron', expiry:'2025-12' },
+  ],
+  billing: [
+    { id:'INV-2025-001', patient:'Meera Rao', date:'2025-03-10', items:['Consultation', 'Belladonna 30C', 'Nux Vomica 200C'], total:680, paid:680, status:'Paid', method:'UPI' },
+    { id:'INV-2025-002', patient:'Ravi Kumar', date:'2025-03-12', items:['Consultation', 'Syzygium Jambolanum Q', 'Uranium Nitricum 30C'], total:1200, paid:700, status:'Partial', method:'Cash' },
+    { id:'INV-2025-003', patient:'Sunita Sharma', date:'2025-03-05', items:['Consultation', 'Ignatia 200C', 'Kali Phos 6X'], total:750, paid:750, status:'Paid', method:'Card' },
+    { id:'INV-2025-004', patient:'Prakash Iyer', date:'2025-03-08', items:['Consultation', 'Rhus Tox 200C', 'Bryonia Alba 30C'], total:820, paid:820, status:'Paid', method:'UPI' },
+    { id:'INV-2025-005', patient:'Kavya Reddy', date:'2025-03-14', items:['Consultation', 'Allium Cepa 30C'], total:580, paid:580, status:'Paid', method:'Cash' },
+    { id:'INV-2025-006', patient:'Arjun Mehta', date:'2025-02-20', items:['Consultation', 'Sulphur 200C'], total:900, paid:700, status:'Partial', method:'Card' },
+  ],
+  staff: [
+    { id:'S001', name:'Dr. Lakshmi Devi', role:'Doctor', specialization:'General Homeopathy & Pediatrics', phone:'9876512345', email:'lakshmi@amruthacare.com', joiningDate:'2020-01-15', status:'Active', patients:87, salary:75000 },
+    { id:'S002', name:'Dr. Suresh Varma', role:'Doctor', specialization:'Chronic Diseases & Diabetes', phone:'9123098765', email:'suresh@amruthacare.com', joiningDate:'2019-06-01', status:'Active', patients:112, salary:80000 },
+    { id:'S003', name:'Dr. Priya Nair', role:'Doctor', specialization:'Dermatology & Skin', phone:'9000456789', email:'priya@amruthacare.com', joiningDate:'2021-03-10', status:'Active', patients:63, salary:72000 },
+    { id:'S004', name:'Asha Kumari', role:'Receptionist', specialization:'Front Desk', phone:'9898765432', email:'asha@amruthacare.com', joiningDate:'2022-07-01', status:'Active', patients:null, salary:22000 },
+    { id:'S005', name:'Ramesh Babu', role:'Pharmacist', specialization:'Homeopathic Pharmacy', phone:'9112233445', email:'ramesh@amruthacare.com', joiningDate:'2021-11-15', status:'Active', patients:null, salary:28000 },
+    { id:'S006', name:'Geeta Singh', role:'Accountant', specialization:'Finance & Billing', phone:'9009988776', email:'geeta@amruthacare.com', joiningDate:'2022-01-20', status:'Active', patients:null, salary:32000 },
+  ]
+};
+
+// ══════════════════════════════════════════
+//  ROLE CONFIG
+// ══════════════════════════════════════════
+const ROLES = {
+  admin:        { label:'Admin', display:'Administrator', color:'#c8883a', pages:['dashboard','patients','appointments','prescriptions','inventory','billing','staff','reports'] },
+  doctor:       { label:'Doctor', display:'Homeopath', color:'#4a7c59', pages:['dashboard','patients','appointments','prescriptions'] },
+  receptionist: { label:'Reception', display:'Receptionist', color:'#4a7a9b', pages:['dashboard','patients','appointments','billing'] },
+  pharmacist:   { label:'Pharmacy', display:'Pharmacist', color:'#7a6a9b', pages:['prescriptions','inventory'] },
+  accountant:   { label:'Finance', display:'Accountant', color:'#8b6f47', pages:['billing','reports'] },
+};
+
+const PAGE_META = {
+  dashboard:    { label:'Dashboard', icon:'📊', title:'Dashboard', subtitle:'Overview of clinic activity' },
+  patients:     { label:'Patients', icon:'👥', title:'Patient Registry', subtitle:'Manage patient records & history' },
+  appointments: { label:'Appointments', icon:'📅', title:'Appointments', subtitle:'Schedule and manage visits' },
+  prescriptions:{ label:'Prescriptions', icon:'📋', title:'Prescriptions', subtitle:'View and issue remedies' },
+  inventory:    { label:'Inventory', icon:'🧪', title:'Medicine Inventory', subtitle:'Stock management & alerts' },
+  billing:      { label:'Billing', icon:'💰', title:'Billing & Invoices', subtitle:'Payments and invoices' },
+  staff:        { label:'Staff', icon:'🏥', title:'Staff Management', subtitle:'Manage clinic staff & roles' },
+  reports:      { label:'Reports', icon:'📈', title:'Reports & Analytics', subtitle:'Business performance insights' },
+};
+
+const NAV_SECTIONS = {
+  admin:        { 'Overview':['dashboard'], 'Clinical':['patients','appointments','prescriptions'], 'Operations':['inventory','billing'], 'Management':['staff','reports'] },
+  doctor:       { 'Overview':['dashboard'], 'Clinical':['patients','appointments','prescriptions'] },
+  receptionist: { 'Overview':['dashboard'], 'Operations':['patients','appointments','billing'] },
+  pharmacist:   { 'Pharmacy':['prescriptions','inventory'] },
+  accountant:   { 'Finance':['billing','reports'] },
+};
+
+let currentRole = 'admin';
+let currentPage = 'dashboard';
+let currentUser = { name:'Admin User', initials:'AU' };
+
+// ══════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════
+function doLogin() {
+  const role = document.getElementById('role-select').value;
+  const pass = document.getElementById('login-pass').value;
+  if (!pass) { alert('Please enter password'); return; }
+  currentRole = role;
+  const roleNames = { admin:'Admin User', doctor:'Dr. Lakshmi Devi', receptionist:'Asha Kumari', pharmacist:'Ramesh Babu', accountant:'Geeta Singh' };
+  const roleInitials = { admin:'AU', doctor:'LD', receptionist:'AK', pharmacist:'RB', accountant:'GS' };
+  currentUser = { name: roleNames[role], initials: roleInitials[role] };
+  document.getElementById('login-screen').classList.add('hidden');
+  setTimeout(() => document.getElementById('app').style.display='flex', 400);
+  initApp();
+}
+function doLogout() {
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-pass').value='';
+}
+
+// ══════════════════════════════════════════
+//  APP INIT
+// ══════════════════════════════════════════
+function initApp() {
+  const r = ROLES[currentRole];
+  // sidebar role badge
+  document.getElementById('role-badge').textContent = r.display;
+  document.getElementById('role-badge').style.background = r.color + '22';
+  document.getElementById('role-badge').style.color = r.color;
+  // user footer
+  document.getElementById('user-avatar').textContent = currentUser.initials;
+  document.getElementById('user-avatar').style.background = r.color;
+  document.getElementById('user-name-display').textContent = currentUser.name;
+  document.getElementById('user-role-display').textContent = r.display;
+  // build nav
+  buildNav();
+  // go to first page
+  const firstPage = r.pages[0];
+  navigateTo(firstPage);
+}
+
+function buildNav() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  const sections = NAV_SECTIONS[currentRole];
+  for (const [sec, pages] of Object.entries(sections)) {
+    const label = document.createElement('div');
+    label.className = 'nav-section-label';
+    label.textContent = sec;
+    nav.appendChild(label);
+    for (const p of pages) {
+      const m = PAGE_META[p];
+      const item = document.createElement('div');
+      item.className = 'nav-item';
+      item.id = 'nav-' + p;
+      item.innerHTML = `<span class="nav-icon">${m.icon}</span>${m.label}`;
+      item.onclick = () => navigateTo(p);
+      nav.appendChild(item);
+    }
+  }
+}
+
+function navigateTo(page) {
+  currentPage = page;
+  // update nav active
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  // update header
+  const m = PAGE_META[page];
+  document.getElementById('header-title').textContent = m.title;
+  document.getElementById('header-subtitle').textContent = m.subtitle;
+  // render page
+  renderPage(page);
+}
+
+// ══════════════════════════════════════════
+//  PAGE RENDERER
+// ══════════════════════════════════════════
+function renderPage(page) {
+  const content = document.getElementById('content');
+  const actions = document.getElementById('header-actions');
+  actions.innerHTML = '';
+  switch(page) {
+    case 'dashboard':    content.innerHTML = pageDashboard(); break;
+    case 'patients':     content.innerHTML = pagePatients(); setupPatientActions(actions); break;
+    case 'appointments': content.innerHTML = pageAppointments(); setupApptActions(actions); break;
+    case 'prescriptions':content.innerHTML = pagePrescriptions(); setupRxActions(actions); break;
+    case 'inventory':    content.innerHTML = pageInventory(); setupInvActions(actions); break;
+    case 'billing':      content.innerHTML = pageBilling(); setupBillingActions(actions); break;
+    case 'staff':        content.innerHTML = pageStaff(); setupStaffActions(actions); break;
+    case 'reports':      content.innerHTML = pageReports(); break;
+  }
+}
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+function pageDashboard() {
+  const today = DATA.appointments.filter(a => a.date === '2025-03-23');
+  const pending = DATA.billing.filter(b => b.status !== 'Paid');
+  const lowStock = DATA.inventory.filter(i => i.stock <= i.reorder);
+  const revenue = DATA.billing.reduce((s,b) => s + b.paid, 0);
+
+  const bars = [62,78,55,90,83,70,95].map(h => `<div class="mini-bar" style="height:${h}%"></div>`).join('');
+
+  return `
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="stat-value">${DATA.patients.filter(p=>p.status==='Active').length}</div>
+      <div class="stat-label">Active Patients</div>
+      <div class="stat-trend up">↑ +3 this week</div>
+      <div class="stat-icon">👥</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-value">${today.length}</div>
+      <div class="stat-label">Today's Appointments</div>
+      <div class="stat-trend up">↑ ${today.filter(a=>a.status==='Confirmed').length} confirmed</div>
+      <div class="stat-icon">📅</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-value">₹${(revenue/1000).toFixed(1)}k</div>
+      <div class="stat-label">Revenue (March)</div>
+      <div class="stat-trend up">↑ 12% vs last month</div>
+      <div class="stat-icon">💰</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-value">${pending.length}</div>
+      <div class="stat-label">Pending Dues</div>
+      <div class="stat-trend down">₹${pending.reduce((s,b)=>s+(b.total-b.paid),0)} outstanding</div>
+      <div class="stat-icon">⚠️</div>
+    </div>
+  </div>
+
+  <div class="main-side">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <!-- Today's Appointments -->
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Today's Appointments</div><div class="card-subtitle">${new Date('2025-03-23').toDateString()}</div></div>
+          <button class="btn btn-secondary btn-sm" onclick="navigateTo('appointments')">View All</button>
+        </div>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Patient</th><th>Doctor</th><th>Time</th><th>Type</th><th>Status</th></tr></thead>
+          <tbody>
+          ${today.map(a => `<tr>
+            <td><div class="flex-row"><div class="avatar av-green">${a.patient[0]}</div>${a.patient}</div></td>
+            <td>${a.doctor}</td>
+            <td><span style="font-family:'DM Mono',monospace;font-size:13px">${a.time}</span></td>
+            <td>${a.type}</td>
+            <td>${apptBadge(a.status)}</td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <!-- Low Stock Alert -->
+      ${lowStock.length ? `<div class="card">
+        <div class="card-header">
+          <div><div class="card-title">⚠️ Low Stock Alert</div><div class="card-subtitle">${lowStock.length} items need reorder</div></div>
+          <button class="btn btn-secondary btn-sm" onclick="navigateTo('inventory')">Manage</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Medicine</th><th>Category</th><th>Stock</th><th>Reorder At</th></tr></thead>
+          <tbody>
+          ${lowStock.map(i=>`<tr>
+            <td>${i.name}</td><td>${i.category}</td>
+            <td><span class="badge badge-red">${i.stock} ${i.unit.split(' ')[1]||''}</span></td>
+            <td>${i.reorder}</td>
+          </tr>`).join('')}
+          </tbody>
+        </table></div>
+      </div>` : ''}
+    </div>
+
+    <!-- Right panel -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <!-- Revenue chart -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">Weekly Revenue</div>
+        <div class="mini-chart" style="height:70px">${[4200,5800,3900,7200,6100,5400,7800].map(v=>`<div class="mini-bar" style="height:${Math.round(v/78)}%;background:var(--sage);border-radius:4px 4px 0 0;position:relative" title="₹${v}"></div>`).join('')}</div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">${['M','T','W','T','F','S','S'].map(d=>`<span class="text-muted" style="flex:1;text-align:center;font-size:11px">${d}</span>`).join('')}</div>
+      </div>
+      <!-- Doctor workload -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Doctor Workload</div>
+        ${['Dr. Lakshmi','Dr. Suresh','Dr. Priya'].map((d,i)=>{
+          const pts = [87,112,63][i];
+          const pct = Math.round(pts/140*100);
+          return `<div style="margin-bottom:14px">
+            <div class="flex-row" style="justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:13px;font-weight:500">${d}</span>
+              <span class="text-muted">${pts} patients</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <!-- Quick stats -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Quick Stats</div>
+        ${[
+          ['Total Prescriptions', DATA.prescriptions.length, '📋'],
+          ['Pending Dispensing', DATA.prescriptions.filter(r=>!r.dispensed).length, '💊'],
+          ['Staff Members', DATA.staff.length, '👤'],
+          ['Medicines in Stock', DATA.inventory.length, '🧪'],
+        ].map(([l,v,i])=>`<div class="flex-row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light)">
+          <span style="font-size:13px">${i} ${l}</span>
+          <span style="font-weight:700;font-family:'DM Mono',monospace">${v}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+//  PATIENTS
+// ══════════════════════════════════════════
+function pagePatients() {
+  return `
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">All Patients (${DATA.patients.length})</div>
+      <div class="search-bar"><span>🔍</span><input placeholder="Search patients…" oninput="filterPatients(this.value)"></div>
+    </div>
+    <div class="table-wrap" id="patients-table">
+    ${patientsTable(DATA.patients)}
+    </div>
+  </div>`;
+}
+function patientsTable(list) {
+  return `<table>
+    <thead><tr><th>Patient</th><th>Age/Gender</th><th>Condition</th><th>Doctor</th><th>Last Visit</th><th>Next Appt</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+    ${list.map(p=>`<tr>
+      <td><div class="flex-row"><div class="avatar av-green">${p.name[0]}</div><div><div style="font-weight:500">${p.name}</div><div class="text-muted">${p.id} · ${p.phone}</div></div></div></td>
+      <td>${p.age} / ${p.gender}</td>
+      <td><span class="tag">${p.condition}</span></td>
+      <td>${p.doctor}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${p.lastVisit}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${p.nextAppt}</td>
+      <td>${p.balance>0?`<span class="badge badge-red">₹${p.balance}</span>`:`<span class="badge badge-green">Clear</span>`}</td>
+      <td>${p.status==='Active'?'<span class="badge badge-green">Active</span>':'<span class="badge badge-gray">Inactive</span>'}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="viewPatient('${p.id}')">View</button></td>
+    </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+function filterPatients(q) {
+  const filtered = q ? DATA.patients.filter(p => (p.name+p.condition+p.doctor+p.id).toLowerCase().includes(q.toLowerCase())) : DATA.patients;
+  document.getElementById('patients-table').innerHTML = patientsTable(filtered);
+}
+function setupPatientActions(actions) {
+  if (['admin','receptionist'].includes(currentRole)) {
+    actions.innerHTML = `<button class="btn btn-primary" onclick="showAddPatient()">+ New Patient</button>`;
+  }
+}
+function viewPatient(id) {
+  const p = DATA.patients.find(x=>x.id===id);
+  const rxs = DATA.prescriptions.filter(r=>r.patientId===id);
+  const apts = DATA.appointments.filter(a=>a.patientId===id);
+  openModal('Patient Profile', `
+    <div class="two-col" style="margin-bottom:20px">
+      <div class="card" style="background:var(--warm-white);border:none;padding:16px">
+        <div class="flex-row" style="margin-bottom:12px"><div class="avatar av-green" style="width:48px;height:48px;font-size:18px">${p.name[0]}</div><div><div style="font-weight:600;font-size:16px">${p.name}</div><div class="text-muted">${p.id} | ${p.gender}, ${p.age} yrs</div></div></div>
+        ${[['Phone',p.phone],['Email',p.email],['Blood Group',p.bloodGroup],['Condition',p.condition],['Doctor',p.doctor]].map(([l,v])=>`<div class="flex-row" style="justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light)"><span class="text-muted">${l}</span><span style="font-size:13px;font-weight:500">${v}</span></div>`).join('')}
+      </div>
+      <div>
+        <div style="font-weight:600;margin-bottom:10px;font-family:'Playfair Display',serif">Prescriptions</div>
+        ${rxs.length?rxs.map(r=>`<div style="padding:10px;background:var(--warm-white);border-radius:8px;margin-bottom:8px;font-size:13px">
+          <div style="font-weight:500">${r.medicines.join(', ')}</div>
+          <div class="text-muted">${r.date} · ${r.doctor}</div>
+          <div class="text-muted">${r.dosage}</div>
+        </div>`).join(''):'<div class="text-muted">No prescriptions</div>'}
+        <div style="font-weight:600;margin:14px 0 10px;font-family:'Playfair Display',serif">Appointments</div>
+        ${apts.length?apts.map(a=>`<div style="padding:10px;background:var(--warm-white);border-radius:8px;margin-bottom:8px;font-size:13px">
+          <div style="font-weight:500">${a.date} at ${a.time}</div>
+          <div class="text-muted">${a.type} · ${apptBadge(a.status)}</div>
+        </div>`).join(''):'<div class="text-muted">No appointments</div>'}
+      </div>
+    </div>
+  `, [{ label:'Close', cls:'btn-secondary', action:'close' }]);
+}
+function showAddPatient() {
+  openModal('Add New Patient', `
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-control" placeholder="Patient name"></div>
+      <div class="form-group"><label class="form-label">Phone *</label><input class="form-control" placeholder="10-digit number"></div>
+      <div class="form-group"><label class="form-label">Age</label><input class="form-control" type="number" placeholder="Age"></div>
+      <div class="form-group"><label class="form-label">Gender</label><select class="form-control"><option>Male</option><option>Female</option><option>Other</option></select></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-control" placeholder="Email address"></div>
+      <div class="form-group"><label class="form-label">Blood Group</label><select class="form-control"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+      <div class="form-group full"><label class="form-label">Address</label><input class="form-control" placeholder="Full address"></div>
+      <div class="form-group full"><label class="form-label">Chief Complaint / Condition</label><textarea class="form-control" rows="2" placeholder="Describe the condition"></textarea></div>
+      <div class="form-group"><label class="form-label">Assign Doctor</label><select class="form
